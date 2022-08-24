@@ -1,4 +1,4 @@
-# tt [![Run tests](https://github.com/gaborbata/tt/workflows/Run%20tests/badge.svg)](https://github.com/gaborbata/tt/actions/workflows/ruby.yml) [![Gem Version](https://badge.fury.io/rb/time-tracker-cli.svg)](https://badge.fury.io/rb/time-tracker-cli)
+# tt [![tests](https://github.com/gaborbata/tt/workflows/tests/badge.svg)](https://github.com/gaborbata/tt/actions/workflows/ruby.yml) [![Gem Version](https://badge.fury.io/rb/time-tracker-cli.svg)](https://badge.fury.io/rb/time-tracker-cli)
 
 ⏱️ simple time tracker app on the command-line
 
