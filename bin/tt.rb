@@ -271,4 +271,4 @@ class TimeTracker
   end
 end
 
-TimeTracker.new.execute(ARGV[0], ARGV[1])
+TimeTracker.new.execute(ARGV[0], ARGV[1..-1].join(" "))
