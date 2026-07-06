@@ -108,7 +108,7 @@ class TimeTracker
 
       # list time tracker entries
       elsif command == 'ls' || command == 'list'
-        message = params.join(' ')
+        message = params.join(' ').gsub(SEPARATOR, '_')
         puts colorize("List of the last #{LIST_ENTRIES} entries#{message.empty? ? '' : ' [filter: ' + message + ']'}\n", :cyan)
         entries = read_entries.last(LIST_ENTRIES)
         (0...entries.size).to_a.each do |idx|
@@ -135,8 +135,8 @@ class TimeTracker
 
       # start an activity
       elsif command == 'start' && params.size > 0
-        activity = params[0]
-        message = params.drop(1).join(' ')
+        activity = params[0].gsub(SEPARATOR, '_')
+        message = params.drop(1).join(' ').gsub(SEPARATOR, '_')
         puts colorize("Start activity [#{activity}] with message [#{message.empty? ? 'n/a' : message}]", :green)
         time = Time.now.strftime(DATE_FORMAT)
         File.open(TIME_TRACKER_FILE, 'a:UTF-8') do |file|
@@ -145,13 +145,35 @@ class TimeTracker
 
       # stop/break activity
       elsif command == 'stop' || command == 'break'
-        message = params.join(' ')
+        message = params.join(' ').gsub(SEPARATOR, '_')
         puts colorize("Record activity [#{command}] with message [#{message.empty? ? 'n/a' : message}]", :green)
         time = Time.now.strftime(DATE_FORMAT)
         File.open(TIME_TRACKER_FILE, 'a:UTF-8') do |file|
           file.write("#{time}#{SEPARATOR}#{command}#{ message ? SEPARATOR + message : ''}\n")
         end
-        
+
+      # continue activity
+      elsif command == 'continue'
+        activity = nil
+        message = params.join(' ').gsub(SEPARATOR, '_')
+        read_entries.reverse.each_with_index do |entry, index|
+          if entry[1] != 'stop' && entry[1] != 'break'
+            activity = entry[1] if index != 0 # no need to continue with index=0
+            message = entry[2] if message.empty?
+            break
+          end
+        end
+        if activity
+          puts colorize("Continue activity [#{activity}] with message [#{message.to_s.empty? ? 'n/a' : message}]", :green)
+          time = Time.now.strftime(DATE_FORMAT)
+          File.open(TIME_TRACKER_FILE, 'a:UTF-8') do |file|
+            file.write("#{time}#{SEPARATOR}#{activity}#{ message ? SEPARATOR + message : ''}\n")
+          end
+        else
+          puts colorize("Nothing to continue...", :yellow)
+        end
+
+      # unsupported command
       else
         message = params.join(' ')
         puts colorize("Unsupported [#{command}] command with params [#{message.empty? ? 'n/a' : message}]", :red)
@@ -163,12 +185,13 @@ class TimeTracker
           tt <command> [params...]      execute the given command
 
         #{colorize('Commands:', :cyan)}
-          rep|report                    show report for the last #{REPORT_DAYS} days, grouped by activity
-          ls|list [filter]              list the last #{LIST_ENTRIES} entries
-          start   <activity> [message]  start tracking time of a given activity
-          break   [message]             start break activity
-          stop    [message]             stop tracking time of the current activity
-          edit                          edit entries in text editor (defined by $EDITOR environment variable)
+          rep|report                     show report for the last #{REPORT_DAYS} days, grouped by activity
+          ls|list  [filter]              list the last #{LIST_ENTRIES} entries
+          start    <activity> [message]  start tracking time of a given activity
+          break    [message]             start break activity
+          stop     [message]             stop tracking time of the current activity
+          edit                           edit entries in text editor (defined by $EDITOR environment variable)
+          continue [message]             continue the last stopped activity
       "
     end
   end
