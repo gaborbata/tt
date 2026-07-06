@@ -42,7 +42,7 @@ class TestTimeTracker < Test::Unit::TestCase
 
   def test_record_break_entry
     # when
-    @time_tracker.execute 'break', 'lunch'
+    @time_tracker.execute 'break', ['lunch']
 
     # then
     assert_match(
@@ -57,7 +57,7 @@ class TestTimeTracker < Test::Unit::TestCase
 
   def test_record_stop_entry
     # when
-    @time_tracker.execute 'stop', nil
+    @time_tracker.execute 'stop', []
 
     # then
     assert_match(
@@ -72,7 +72,7 @@ class TestTimeTracker < Test::Unit::TestCase
 
   def test_record_start_entry
     # when
-    @time_tracker.execute 'meetings,standup', nil
+    @time_tracker.execute 'start', ['meetings', 'standup']
 
     # then
     assert_match(
@@ -80,18 +80,18 @@ class TestTimeTracker < Test::Unit::TestCase
       File.read(@time_tracker_file)
     )
     assert_equal(
-      "\e[32mRecord activity [meetings] with message [standup]\e[0m",
+      "\e[32mStart activity [meetings] with message [standup]\e[0m",
       $stdout.string.split("\n").last
     )
   end
 
   def test_list_break_entry_format
     # given
-    @time_tracker.execute 'break', 'lunch'
+    @time_tracker.execute 'break', ['lunch']
     $stdout = StringIO.new
 
     # when
-    @time_tracker.execute 'ls', nil
+    @time_tracker.execute 'ls', []
 
     # then
     assert_match(
@@ -102,11 +102,11 @@ class TestTimeTracker < Test::Unit::TestCase
 
   def test_list_stop_entry_format
     # given
-    @time_tracker.execute 'stop', nil
+    @time_tracker.execute 'stop', []
     $stdout = StringIO.new
 
     # when
-    @time_tracker.execute 'list', nil
+    @time_tracker.execute 'list', []
 
     # then
     assert_match(
@@ -117,11 +117,11 @@ class TestTimeTracker < Test::Unit::TestCase
 
   def test_list_start_entry_format
     # given
-    @time_tracker.execute 'meetings', 'standup'
+    @time_tracker.execute 'start', ['meetings', 'standup']
     $stdout = StringIO.new
 
     # when
-    @time_tracker.execute 'ls', nil
+    @time_tracker.execute 'ls', []
 
     # then
     assert_match(
@@ -132,13 +132,13 @@ class TestTimeTracker < Test::Unit::TestCase
 
   def test_list_filter_entry_format
     # given
-    @time_tracker.execute 'meetings', 'standup'
-    @time_tracker.execute 'break', 'lunch'
-    @time_tracker.execute 'stop', nil
+    @time_tracker.execute 'start', ['meetings', 'standup']
+    @time_tracker.execute 'break', ['lunch']
+    @time_tracker.execute 'stop', []
     $stdout = StringIO.new
 
     # when
-    @time_tracker.execute 'ls', 'standup'
+    @time_tracker.execute 'ls', ['standup']
 
     # then
     assert_match(
@@ -149,11 +149,11 @@ class TestTimeTracker < Test::Unit::TestCase
 
   def test_list_filter_not_existing_entry
     # given
-    @time_tracker.execute 'meetings', 'standup'
+    @time_tracker.execute 'start', ['meetings', 'standup']
     $stdout = StringIO.new
 
     # when
-    @time_tracker.execute 'ls', 'retrospective'
+    @time_tracker.execute 'ls', ['retrospective']
 
     # then
     assert_match(/\e\[0m/, $stdout.string.split("\n").last)
@@ -161,15 +161,15 @@ class TestTimeTracker < Test::Unit::TestCase
 
   def test_report_format
     # given
-    @time_tracker.execute 'meetings', 'standup'
-    @time_tracker.execute 'break', 'lunch'
-    @time_tracker.execute 'meetings', 'refinement'
-    @time_tracker.execute 'STORY-123', 'implementation'
-    @time_tracker.execute 'stop', nil
+    @time_tracker.execute 'start', ['meetings', 'standup']
+    @time_tracker.execute 'break', ['lunch']
+    @time_tracker.execute 'start', ['meetings', 'refinement']
+    @time_tracker.execute 'start', ['STORY-123', 'implementation']
+    @time_tracker.execute 'stop', []
     $stdout = StringIO.new
 
     # when
-    @time_tracker.execute 'rep', nil
+    @time_tracker.execute 'rep', []
 
     # then
     assert_equal(
@@ -179,7 +179,7 @@ class TestTimeTracker < Test::Unit::TestCase
         "2022-08-24 (Wednesday)",
         "meetings: 00:00:00 (0.000)",
         "break: 00:00:00 (0.000)",
-        "story-123: 00:00:00 (0.000)",
+        "STORY-123: 00:00:00 (0.000)",
         "total: 00:00:00 (0.000) [excl. break 0.000]",
         "",
         "Week total: 0.000"
@@ -196,7 +196,7 @@ class TestTimeTracker < Test::Unit::TestCase
 
   def test_report_empty_format
     # when
-    @time_tracker.execute 'report', nil
+    @time_tracker.execute 'report', []
 
     # then
     assert_equal(

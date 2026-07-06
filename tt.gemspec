@@ -1,7 +1,7 @@
 Gem::Specification.new do |s|
   s.name                  = 'time-tracker-cli'
-  s.version               = '1.0.0'
-  s.date                  = '2022-08-24'
+  s.version               = '2.0.0'
+  s.date                  = '2026-07-06'
   s.summary               = 'simple time tracker app on the command-line'
   s.authors               = ['Gabor Bata']
   s.homepage              = 'https://github.com/gaborbata/tt'
